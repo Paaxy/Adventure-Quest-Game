@@ -21,12 +21,16 @@ const player = {
     grounded: false
 };
 
-// Floor setup (as a simple ground)
+// Floor setup (for collision)
 const floor = {
-    x: 0,
     y: canvas.height - 50,
-    width: canvas.width,
     height: 50
+};
+
+// Endless world setup
+const world = {
+    offsetX: 0, // Horizontal offset for the world
+    scrollSpeed: 2 // How fast the world scrolls
 };
 
 // Quest system setup with multiple quests
@@ -34,7 +38,7 @@ const quests = [
     {
         name: 'Reach the destination!',
         description: 'Go to the far right of the screen.',
-        targetX: canvas.width - 100, // target position
+        targetX: 1500, // Target position to reach
         progress: 0,
         completed: false,
         reward: 'You’ve reached the goal!',
@@ -43,34 +47,17 @@ const quests = [
     {
         name: 'Jump over the obstacle!',
         description: 'Jump over the green block in the middle of the screen.',
-        targetX: 400, // position to jump over
+        targetX: 2000, // position to jump over
         targetY: 350, // position of the obstacle
         progress: 0,
         completed: false,
         reward: 'You jumped successfully!',
         type: 'jump'
-    },
-    {
-        name: 'Collect the coin!',
-        description: 'Reach the coin to collect it.',
-        targetX: 600, // position of the coin
-        targetY: 300, // position of the coin
-        progress: 0,
-        completed: false,
-        reward: 'You collected the coin!',
-        type: 'collect'
     }
 ];
 
-let activeQuest = quests[0]; // Start with the first quest
-
-// Coin setup (for collect quest)
-const coin = {
-    x: 600,
-    y: 300,
-    width: 20,
-    height: 20
-};
+let currentQuestIndex = 0;
+let activeQuest = quests[currentQuestIndex];
 
 // Event listeners for keyboard and mobile controls
 document.addEventListener('keydown', (e) => keys[e.key] = true);
@@ -93,9 +80,9 @@ function gameLoop() {
     applyGravity();
     detectCollision();
     checkQuestProgress();
+    renderWorld();
     renderPlayer();
     renderFloor();
-    renderCoin();
     renderQuest();
     requestAnimationFrame(gameLoop);
 }
@@ -145,17 +132,33 @@ function checkQuestProgress() {
             activeQuest.progress = 100;
             activeQuest.completed = true;
             alert(activeQuest.reward);
+            currentQuestIndex++;
+            if (currentQuestIndex < quests.length) {
+                activeQuest = quests[currentQuestIndex];
+            }
         } else if (activeQuest.type === 'jump' && player.x >= activeQuest.targetX && player.y < activeQuest.targetY) {
             activeQuest.progress = 100;
             activeQuest.completed = true;
             alert(activeQuest.reward);
-        } else if (activeQuest.type === 'collect' && player.x >= activeQuest.targetX && player.y === activeQuest.targetY) {
-            activeQuest.progress = 100;
-            activeQuest.completed = true;
-            alert(activeQuest.reward);
+            currentQuestIndex++;
+            if (currentQuestIndex < quests.length) {
+                activeQuest = quests[currentQuestIndex];
+            }
         } else {
             activeQuest.progress = Math.floor((player.x / activeQuest.targetX) * 100);
         }
+    }
+}
+
+// Render the endless world (background, scrolling)
+function renderWorld() {
+    ctx.fillStyle = '#87ceeb'; // Light blue sky color
+    ctx.fillRect(world.offsetX, 0, canvas.width, canvas.height);
+
+    // Move the world horizontally to create an endless scroll
+    world.offsetX -= world.scrollSpeed;
+    if (world.offsetX <= -canvas.width) {
+        world.offsetX = 0;
     }
 }
 
@@ -168,15 +171,7 @@ function renderPlayer() {
 // Render the floor
 function renderFloor() {
     ctx.fillStyle = 'green';
-    ctx.fillRect(floor.x, floor.y, floor.width, floor.height);
-}
-
-// Render the coin
-function renderCoin() {
-    if (!activeQuest.completed && activeQuest.name === 'Collect the coin!') {
-        ctx.fillStyle = 'gold';
-        ctx.fillRect(coin.x, coin.y, coin.width, coin.height);
-    }
+    ctx.fillRect(0, floor.y, canvas.width, floor.height);
 }
 
 // Render quest info
