@@ -29,8 +29,16 @@ const floor = {
 
 // Endless world setup
 const world = {
-    offsetX: 0, // Horizontal offset for the world
-    scrollSpeed: 2 // How fast the world scrolls
+    offsetX: 0, // Horizontal offset for the world (camera movement)
+    scrollSpeed: 2, // How fast the world scrolls
+    width: 2000 // The size of the world (more than the canvas width)
+};
+
+// Camera setup
+const camera = {
+    x: 0, // Camera's position (initially at the start of the world)
+    width: canvas.width, // Camera's viewport width (the canvas width)
+    height: canvas.height // Camera's height (the canvas height)
 };
 
 // Quest system setup with multiple quests
@@ -152,26 +160,30 @@ function checkQuestProgress() {
 
 // Render the endless world (background, scrolling)
 function renderWorld() {
-    ctx.fillStyle = '#87ceeb'; // Light blue sky color
-    ctx.fillRect(world.offsetX, 0, canvas.width, canvas.height);
-
     // Move the world horizontally to create an endless scroll
     world.offsetX -= world.scrollSpeed;
-    if (world.offsetX <= -canvas.width) {
+    if (world.offsetX <= -world.width) {
         world.offsetX = 0;
     }
+
+    // Camera follows the player (keep player in the center)
+    camera.x = player.x - camera.width / 2;
+
+    // Draw the world (background)
+    ctx.fillStyle = '#87ceeb'; // Light blue sky color
+    ctx.fillRect(camera.x, 0, world.width, canvas.height);
 }
 
 // Render player character
 function renderPlayer() {
     ctx.fillStyle = 'red';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    ctx.fillRect(player.x - camera.x, player.y, player.width, player.height);
 }
 
 // Render the floor
 function renderFloor() {
     ctx.fillStyle = 'green';
-    ctx.fillRect(0, floor.y, canvas.width, floor.height);
+    ctx.fillRect(0 - camera.x, floor.y, world.width, floor.height);
 }
 
 // Render quest info
