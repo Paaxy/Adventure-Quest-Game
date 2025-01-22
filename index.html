@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Adventure Game</title>
+    <title>2D Adventure Game with Quests</title>
     <style>
         body {
             margin: 0;
@@ -13,12 +13,26 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
         }
 
         canvas {
             background-color: #87ceeb;
             border: 1px solid #000;
+        }
+
+        /* Quest UI */
+        #questUI {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+            border-radius: 10px;
         }
 
         /* Mobile controls (visible when needed) */
@@ -48,6 +62,11 @@
     </style>
 </head>
 <body>
+    <div id="questUI">
+        <p id="questText">Quest: Reach the destination!</p>
+        <p id="questProgress">Progress: 0%</p>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
     <!-- Mobile controls -->
