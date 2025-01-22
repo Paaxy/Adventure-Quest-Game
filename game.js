@@ -29,6 +29,20 @@ const floor = {
     height: 50
 };
 
+// Quest system setup
+const quests = [
+    {
+        name: 'Reach the destination!',
+        description: 'Go to the far right of the screen.',
+        targetX: canvas.width - 100, // target position
+        progress: 0,
+        completed: false,
+        reward: 'You’ve reached the goal!'
+    }
+];
+
+let activeQuest = quests[0]; // Start with the first quest
+
 // Event listeners for keyboard and mobile controls
 document.addEventListener('keydown', (e) => keys[e.key] = true);
 document.addEventListener('keyup', (e) => keys[e.key] = false);
@@ -49,8 +63,10 @@ function gameLoop() {
     movePlayer();
     applyGravity();
     detectCollision();
+    checkQuestProgress();
     renderPlayer();
     renderFloor();
+    renderQuest();
     requestAnimationFrame(gameLoop);
 }
 
@@ -92,6 +108,20 @@ function detectCollision() {
     }
 }
 
+// Quest progress tracking
+function checkQuestProgress() {
+    if (!activeQuest.completed) {
+        // Check if the player has reached the target X position for this quest
+        if (player.x >= activeQuest.targetX) {
+            activeQuest.progress = 100;
+            activeQuest.completed = true;
+            alert(activeQuest.reward);
+        } else {
+            activeQuest.progress = Math.floor((player.x / activeQuest.targetX) * 100);
+        }
+    }
+}
+
 // Render player character
 function renderPlayer() {
     ctx.fillStyle = 'red';
@@ -102,6 +132,15 @@ function renderPlayer() {
 function renderFloor() {
     ctx.fillStyle = 'green';
     ctx.fillRect(floor.x, floor.y, floor.width, floor.height);
+}
+
+// Render quest info
+function renderQuest() {
+    const questText = document.getElementById('questText');
+    const questProgress = document.getElementById('questProgress');
+    
+    questText.textContent = `Quest: ${activeQuest.name}`;
+    questProgress.textContent = `Progress: ${activeQuest.progress}%`;
 }
 
 // Start the game loop
